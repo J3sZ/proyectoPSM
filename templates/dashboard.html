@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card p-4">
+            <h2>Bienvenido, {{ student.user.get_full_name }}</h2>
+            <p class="text-muted">
+                <strong>Carrera:</strong> {{ student.career.name }} | 
+                <strong>Carnet:</strong> {{ student.code }}
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <h4 class="mb-3">📅 Mi Horario - Periodo {{ term.name }}</h4>
+        
+        {% if enrollments %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover bg-white">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Materia</th>
+                            <th>Sección</th>
+                            <th>Profesor</th>
+                            <th>Horario</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in enrollments %}
+                        <tr>
+                            <td>{{ item.section.subject.name }}</td>
+                            <td>{{ item.section.code }}</td>
+                            <td>{{ item.section.teacher.get_full_name|default:"Por asignar" }}</td>
+                            <td>
+                                <small>{{ item.section.schedule_data }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-success">{{ item.status }}</span>
+                            </td>
+                            <td>
+                                <form action="{% url 'drop_section' item.id %}" method="POST" onsubmit="return confirm('¿Seguro que deseas retirar esta materia?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Retirar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                No tienes materias inscritas aún. ¡Ve a la <a href="{% url 'academic_offer' %}">Oferta Académica</a>!
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

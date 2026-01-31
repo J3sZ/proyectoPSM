@@ -18,3 +18,17 @@ class Student(models.Model):
     def __str__(self):
         return f"{self.code} - {self.user.get_full_name()}"
 
+class StudentUser(User):
+    """Modelo Proxy para gestionar solo Estudiantes en el Admin"""
+    class Meta:
+        proxy = True # No crea tabla nueva
+        verbose_name = 'Estudiante (Usuario)'
+        verbose_name_plural = 'Estudiantes (Usuarios)'
+
+class TeacherUser(User):
+    """Modelo Proxy para gestionar solo Profesores en el Admin"""
+    class Meta:
+        proxy = True
+        verbose_name = 'Profesor'
+        verbose_name_plural = 'Profesores'
+

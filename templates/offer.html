@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>📚 Oferta Académica Disponible</h3>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Volver al Horario</a>
+</div>
+
+<div class="card p-3">
+    {% if sections %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 30%;">Materia / Semestre</th>
+                    <th>Sección</th>
+                    <th>Cupos</th>
+                    <th>Horario</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for section in sections %}
+                <tr>
+                    <td>
+                        <strong>{{ section.subject.name }}</strong><br>
+                        <small class="text-muted">Semestre {{ section.subject.semester }} - Créditos: {{ section.subject.credits }}</small>
+                    </td>
+                    <td>
+                        <span class="badge bg-secondary">{{ section.code }}</span>
+                        <br>
+                        <small>{{ section.teacher.get_full_name|default:"TBA" }}</small>
+                    </td>
+                    <td>
+                        {% with enrolled=section.enrolled_count %}
+                            <div class="d-flex justify-content-between">
+                                <small>{{ enrolled }} / {{ section.quota }}</small>
+                            </div>
+                            <div class="progress" style="height: 5px;">
+                                <div class="progress-bar {% if enrolled >= section.quota %}bg-danger{% else %}bg-success{% endif %}" 
+                                     role="progressbar" 
+                                     style="width: calc(({{ enrolled }} / {{ section.quota }}) * 100%);">
+                                </div>
+                            </div>
+                        {% endwith %}
+                    </td>
+                    <td>
+                        <small style="font-size: 0.85rem;">
+                            {% for day, hours in section.schedule_data.items %}
+                                <div><strong>{{ day }}:</strong> {{ hours }}</div>
+                            {% endfor %}
+                        </small>
+                    </td>
+                    <td>
+                        <form action="{% url 'enroll_section' section.id %}" method="POST">
+                            {% csrf_token %}
+                            
+                            {% if section.has_space %}
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    + Inscribir
+                                </button>
+                            {% else %}
+                                <button type="button" class="btn btn-secondary btn-sm" disabled>
+                                    Lleno
+                                </button>
+                            {% endif %}
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <div class="alert alert-warning text-center">
+            <h4>No hay materias disponibles para ti en este momento.</h4>
+            <p>Puede que ya hayas inscrito todo, o no cumplas con los requisitos de las materias restantes.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
