@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="p-5 mb-4 bg-light rounded-3 shadow-sm border">
+    <div class="container-fluid py-5">
+        <h1 class="display-5 fw-bold text-primary">🎓 Bienvenido a UniSystem</h1>
+        <p class="col-md-8 fs-4">
+            La plataforma integral para la gestión académica. Inscribe tus materias, 
+            consulta tus horarios y gestiona tu perfil estudiantil de manera rápida y sencilla.
+        </p>
+        
+        <div class="mt-4">
+            {% if user.is_authenticated %}
+                <a class="btn btn-primary btn-lg" href="{% url 'dashboard' %}">Ir a mi Dashboard</a>
+            {% else %}
+                <a class="btn btn-primary btn-lg px-4 gap-3" href="{% url 'login' %}">Iniciar Sesión</a>
+                <a class="btn btn-outline-secondary btn-lg px-4" href="{% url 'register' %}">Nuevo Ingreso</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row align-items-md-stretch mb-5">
+    
+    <div class="col-md-4 mb-3">
+        <div class="h-100 p-5 text-white bg-dark rounded-3">
+            <h2>📝 Inscripciones</h2>
+            <p>Realiza tu proceso de inscripción en línea. El sistema validará automáticamente tus prelaciones, cupos disponibles y choques de horario.</p>
+            <a href="{% url 'academic_offer' %}" class="btn btn-outline-light" type="button">Ver Oferta</a>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <div class="h-100 p-5 bg-white border rounded-3 shadow-sm">
+            <h2 class="text-primary">📅 Horarios</h2>
+            <p>Mantén tu agenda organizada. Visualiza tu carga académica, salones asignados y profesores para el periodo actual 2026-1.</p>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <div class="h-100 p-5 bg-light border rounded-3">
+            <h2>👤 Perfil</h2>
+            <p>Accede a tu historial académico, actualiza tus datos personales y mantente al día con tu estatus administrativo en la universidad.</p>
+        </div>
+    </div>
+</div>
+
+<footer class="pt-3 mt-4 text-muted border-top text-center">
+    &copy; 2026 Universidad UniSystem · Departamento de Tecnología
+</footer>
+
+{% endblock %}

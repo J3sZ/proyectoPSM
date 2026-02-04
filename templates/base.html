@@ -4,63 +4,129 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema Universitario</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <style>
-        body { background-color: #f8f9fa; }
-        .navbar { margin-bottom: 20px; }
-        .card { box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        body { 
+            background-color: #f8f9fa; /* Gris muy claro de fondo */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .navbar { 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+        }
+        .container-main {
+            flex: 1; /* Esto asegura que el footer se quede abajo si hay poco contenido */
+            padding-top: 20px;
+            padding-bottom: 40px;
+        }
+        .card { 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+            border: none;
+        }
+        footer {
+            background-color: #fff;
+            padding: 20px 0;
+            margin-top: auto;
+            border-top: 1px solid #e9ecef;
+        }
     </style>
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'dashboard' %}">🎓 UniSystem</a>
+            <a class="navbar-brand fw-bold" href="{% url 'home' %}">
+                🎓 UniSystem
+            </a>
+            
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'dashboard' %}">Mi Horario</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{% url 'academic_offer' %}">Inscribir Materias</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            👤 {{ user.username }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><span class="dropdown-item-text text-muted">Estudiante</span></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form action="{% url 'logout' %}" method="post">
-                                    {% csrf_token %}
-                                    <button type="submit" class="dropdown-item text-danger">Cerrar Sesión</button>
-                                </form>
-                            </li>
-                        </ul>
-                    </li>
+                <ul class="navbar-nav ms-auto align-items-center">
+                    
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" 
+                               href="{% url 'dashboard' %}">
+                                📅 Mi Horario
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'academic_offer' %}active{% endif %}" 
+                               href="{% url 'academic_offer' %}">
+                                📚 Inscribir Materias
+                            </a>
+                        </li>
+
+                        <li class="nav-item dropdown ms-lg-3">
+                            <a class="nav-link dropdown-toggle btn btn-primary text-white" href="#" role="button" data-bs-toggle="dropdown">
+                                👤 {{ user.first_name|default:user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow">
+                                <li><span class="dropdown-item-text text-muted small">
+                                    {% if user.is_student %}Estudiante{% elif user.is_teacher %}Profesor{% else %}Admin{% endif %}
+                                </span></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="{% url 'logout' %}" method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item text-danger">
+                                            Cerrar Sesión
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{% url 'login' %}">Iniciar Sesión</a>
+                        </li>
+                        <li class="nav-item ms-lg-2">
+                            <a class="btn btn-outline-light btn-sm" href="{% url 'register' %}">
+                                Registrarse
+                            </a>
+                        </li>
+                    {% endif %}
+
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container">
+    <div class="container container-main">
+        
         {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="row justify-content-center">
+                <div class="col-md-10">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
                 </div>
-            {% endfor %}
+            </div>
         {% endif %}
 
         {% block content %}
         {% endblock %}
+    
     </div>
 
+    <footer>
+        <div class="container text-center text-muted">
+            <small>&copy; {% now "Y" %} UniSystem Universidad. Todos los derechos reservados.</small>
+        </div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

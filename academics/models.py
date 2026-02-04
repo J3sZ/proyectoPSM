@@ -23,7 +23,7 @@ class Subject(models.Model):
     prerequisites = models.ManyToManyField('self', through='Prerequisite', related_name='required_by', symmetrical=False)
 
     def __str__(self):
-        return self.code
+        return self.name    
     
 
 class Prerequisite(models.Model):

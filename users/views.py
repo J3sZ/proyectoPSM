@@ -2,16 +2,41 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db import transaction
 from django.core.exceptions import ValidationError
-
-# Importamos los modelos
 from planning.models import Term, Section
-from .models import Enrollment
-
-# Importamos el decorador personalizado (Asegúrate de haberlo creado en users/decorators.py)
+from .models import Student
+from enrollement.models import Enrollment # Importamos Enrollment de la app enrollement
 from users.decorators import student_required
+from enrollement.services import perform_enrollment # Importamos el servicio de validación de enrollement
+from .forms import StudentRegistrationForm
+from django.contrib.auth import login
 
-# Importamos la lógica de validación (Asegúrate de haberla creado en enrollment/services.py)
-from .services import perform_enrollment
+def register(request):
+    # Si ya está logueado, lo sacamos de aquí
+    if request.user.is_authenticated:
+        return redirect('dashboard') 
+
+    if request.method == 'POST':
+        form = StudentRegistrationForm(request.POST)
+        if form.is_valid():
+            try:
+                # El form.save() ya maneja la creación del User y el Student
+                user = form.save()
+                
+                # Logueamos al usuario inmediatamente
+                login(request, user)
+                
+                messages.success(request, f"¡Bienvenido, {user.first_name}! Tu cuenta ha sido creada.")
+                return redirect('dashboard')
+            
+            except Exception as e:
+                # Esto atrapa errores como "Carnet duplicado"
+                messages.error(request, "Error al registrar: Verifica que el carnet no esté ya registrado.")
+        else:
+            messages.error(request, "Por favor corrige los errores del formulario.")
+    else:
+        form = StudentRegistrationForm()
+
+    return render(request, 'users/register.html', {'form': form})
 
 @student_required
 def student_dashboard(request):
@@ -108,3 +133,4 @@ def drop_section(request, enrollment_id):
         messages.warning(request, f"Has retirado la materia {materia_nombre}.")
     
     return redirect('dashboard')
+    
